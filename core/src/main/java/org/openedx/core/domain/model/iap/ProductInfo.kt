@@ -7,4 +7,5 @@ import kotlinx.parcelize.Parcelize
 data class ProductInfo(
     val courseSku: String,
     val storeSku: String,
+    val lmsUSDPrice: Double,
 ) : Parcelable

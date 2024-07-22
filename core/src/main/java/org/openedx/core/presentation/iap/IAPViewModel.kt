@@ -24,6 +24,8 @@ import org.openedx.core.data.storage.CorePreferences
 import org.openedx.core.domain.interactor.IAPInteractor
 import org.openedx.core.domain.model.iap.PurchaseFlowData
 import org.openedx.core.exception.iap.IAPException
+import org.openedx.core.extension.nonZero
+import org.openedx.core.extension.takeIfNotEmpty
 import org.openedx.core.module.billing.BillingProcessor
 import org.openedx.core.module.billing.getCourseSku
 import org.openedx.core.module.billing.getPriceAmount
@@ -337,7 +339,7 @@ class IAPViewModel(
 
     private fun logIAPEvent(
         event: IAPAnalyticsEvent,
-        params: MutableMap<String, Any?> = mutableMapOf()
+        params: MutableMap<String, Any?> = mutableMapOf(),
     ) {
         analytics.logIAPEvent(
             event = event,
@@ -350,8 +352,14 @@ class IAPViewModel(
                         if (purchaseFlowData.isSelfPaced == true) IAPAnalyticsKeys.SELF.key else IAPAnalyticsKeys.INSTRUCTOR.key
                     )
                 }
-                purchaseFlowData.formattedPrice?.takeIf { it.isNotBlank() }?.let { formattedPrice ->
-                    put(IAPAnalyticsKeys.PRICE.key, formattedPrice)
+                purchaseFlowData.productInfo?.lmsUSDPrice?.nonZero()?.let { lmsUSDPrice ->
+                    put(IAPAnalyticsKeys.LMS_USD_PRICE.key, lmsUSDPrice)
+                }
+                purchaseFlowData.price.nonZero()?.let { localizedPrice ->
+                    put(IAPAnalyticsKeys.LOCALIZED_PRICE.key, localizedPrice)
+                }
+                purchaseFlowData.currencyCode.takeIfNotEmpty()?.let { currencyCode ->
+                    put(IAPAnalyticsKeys.CURRENCY_CODE.key, currencyCode)
                 }
                 purchaseFlowData.componentId?.takeIf { it.isNotBlank() }?.let { componentId ->
                     put(IAPAnalyticsKeys.COMPONENT_ID.key, componentId)

@@ -47,7 +47,11 @@ data class EnrolledCourse(
             }?.takeIf {
                 it.androidSku.isNullOrEmpty().not() && it.storeSku.isNullOrEmpty().not()
             }?.run {
-                ProductInfo(courseSku = androidSku!!, storeSku = storeSku!!)
+                ProductInfo(
+                    courseSku = androidSku!!,
+                    storeSku = storeSku!!,
+                    lmsUSDPrice = price ?: 0.0
+                )
             }
         )
     }
