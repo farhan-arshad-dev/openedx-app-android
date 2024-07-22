@@ -105,17 +105,16 @@ class CourseDatesViewModel(
                 isSelfPaced = courseStructure?.isSelfPaced ?: false
                 val datesResponse = interactor.getCourseDates(courseId = courseId)
                 if (datesResponse.datesSection.isEmpty()) {
-                    _uiState.value = DatesUIState.Empty
+                    _uiState.value = DatesUIState.Error
                 } else {
                     _uiState.value = DatesUIState.Dates(datesResponse)
                     courseBannerType = datesResponse.courseBanner.bannerType
                     checkIfCalendarOutOfDate()
                 }
             } catch (e: Exception) {
+                _uiState.value = DatesUIState.Error
                 if (e.isInternetError()) {
                     _uiMessage.emit(UIMessage.SnackBarMessage(resourceManager.getString(CoreR.string.core_error_no_connection)))
-                } else {
-                    _uiMessage.emit(UIMessage.SnackBarMessage(resourceManager.getString(CoreR.string.core_error_unknown_error)))
                 }
             } finally {
                 courseNotifier.send(CourseLoading(false))
