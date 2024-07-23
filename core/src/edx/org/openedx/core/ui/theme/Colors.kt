@@ -38,7 +38,7 @@ val light_text_accent = Color(0xFF03C7E8) // Accent A Isotope Blue
 
 val light_text_field_background = light_surface
 val light_text_field_background_variant = light_surface
-val light_text_field_border = light_onSurface
+val light_text_field_border = Color(0xFFE1DDDB) // Light 500
 val light_text_field_text = light_text_primary
 val light_text_field_hint = light_secondary_variant
 
@@ -122,9 +122,9 @@ val dark_text_warning = Color(0xFF002121) // primary 700
 val dark_text_accent = Color(0xFF03C7E8) // Accent A Isotope Blue
 val dark_text_field_background = dark_surface
 val dark_text_field_background_variant = dark_surface
-val dark_text_field_border = Color(0xFFD2DAD8) // Gray 500
+val dark_text_field_border = Color(0xFFD2DAD8) // Elm Dark 100
 val dark_text_field_text = dark_text_primary
-val dark_text_field_hint = Color(0xFFD2DAD8) // Gray 700
+val dark_text_field_hint = dark_text_field_border
 
 val dark_primary_button_background = Color(0xFFD74000)   // Primary 500 | Dark 500 | Elm
 val dark_primary_button_text = Color.White
@@ -138,7 +138,7 @@ val dark_secondary_button_bordered_background = Color.White
 val dark_secondary_button_bordered_text = Color(0xFFD23228) // Brand 500
 
 val dark_card_view_background = dark_surface
-val dark_card_view_border = Color(0xFF4E5A70)
+val dark_card_view_border = dark_text_field_border
 val dark_divider = dark_primary
 
 val dark_certificate_foreground = Color(0xD92EB865)

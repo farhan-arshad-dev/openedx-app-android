@@ -137,7 +137,7 @@ fun AllEnrolledCoursesView(
                 }
 
                 is AllEnrolledCoursesAction.FilterChange -> {
-                    viewModel.getCourses(action.courseStatusFilter)
+                    viewModel.changeFilter(action.courseStatusFilter)
                 }
             }
         }
@@ -411,7 +411,7 @@ fun CourseItem(
             },
         backgroundColor = MaterialTheme.appColors.cardViewBackground,
         shape = MaterialTheme.appShapes.courseImageShape,
-        elevation = 4.dp
+        elevation = 2.dp
     ) {
         Box {
             Column {

@@ -61,7 +61,7 @@ import org.openedx.core.presentation.course.CourseViewMode
 import org.openedx.core.ui.CircularProgress
 import org.openedx.core.ui.HandleUIMessage
 import org.openedx.core.ui.NoContentScreen
-import org.openedx.core.ui.OpenEdXButton
+import org.openedx.core.ui.OpenEdXOutlinedButton
 import org.openedx.core.ui.TextIcon
 import org.openedx.core.ui.WindowSize
 import org.openedx.core.ui.WindowType
@@ -278,23 +278,6 @@ private fun CourseOutlineUI(
                                         }
                                     }
 
-
-                                    val progress = uiState.courseStructure.progress
-                                    if (progress != null && progress.totalAssignmentsCount > 0) {
-                                        item {
-                                            CourseProgress(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(
-                                                        top = 16.dp,
-                                                        start = 24.dp,
-                                                        end = 24.dp
-                                                    ),
-                                                progress = progress
-                                            )
-                                        }
-                                    }
-
                                     if (uiState.resumeComponent != null) {
                                         item {
                                             Box(listPadding) {
@@ -312,6 +295,22 @@ private fun CourseOutlineUI(
                                                     )
                                                 }
                                             }
+                                        }
+                                    }
+
+                                    val progress = uiState.courseStructure.progress
+                                    if (progress != null && progress.totalAssignmentsCount > 0) {
+                                        item {
+                                            CourseProgress(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(
+                                                        top = 16.dp,
+                                                        start = 24.dp,
+                                                        end = 24.dp
+                                                    ),
+                                                progress = progress
+                                            )
                                         }
                                     }
 
@@ -384,9 +383,11 @@ private fun ResumeCourse(
                 overflow = TextOverflow.Ellipsis
             )
         }
-        Spacer(Modifier.height(24.dp))
-        OpenEdXButton(
+        Spacer(Modifier.height(16.dp))
+        OpenEdXOutlinedButton(
             text = stringResource(id = R.string.course_resume),
+            textColor = MaterialTheme.appColors.primaryButtonBorderedText,
+            borderColor = MaterialTheme.appColors.primaryButtonBorder,
             onClick = {
                 onResumeClick(block.id)
             },
@@ -394,7 +395,7 @@ private fun ResumeCourse(
                 TextIcon(
                     text = stringResource(id = R.string.course_resume),
                     painter = painterResource(id = CoreR.drawable.core_ic_forward),
-                    color = MaterialTheme.appColors.primaryButtonText,
+                    color = MaterialTheme.appColors.primaryButtonBorderedText,
                     textStyle = MaterialTheme.appTypography.labelLarge
                 )
             }
@@ -443,9 +444,11 @@ private fun ResumeCourseTablet(
                 )
             }
         }
-        OpenEdXButton(
+        OpenEdXOutlinedButton(
             modifier = Modifier.width(210.dp),
             text = stringResource(id = R.string.course_resume),
+            textColor = MaterialTheme.appColors.primaryButtonBorderedText,
+            borderColor = MaterialTheme.appColors.primaryButtonBorder,
             onClick = {
                 onResumeClick(block.id)
             },
@@ -453,7 +456,7 @@ private fun ResumeCourseTablet(
                 TextIcon(
                     text = stringResource(id = R.string.course_resume),
                     painter = painterResource(id = CoreR.drawable.core_ic_forward),
-                    color = MaterialTheme.appColors.primaryButtonText,
+                    color = MaterialTheme.appColors.primaryButtonBorderedText,
                     textStyle = MaterialTheme.appTypography.labelLarge
                 )
             }
@@ -476,7 +479,7 @@ private fun CourseProgress(
                 .height(10.dp)
                 .clip(CircleShape),
             progress = progress.value,
-            color = MaterialTheme.appColors.progressBarColor,
+            color = MaterialTheme.appColors.secondaryButtonBackground,
             backgroundColor = MaterialTheme.appColors.progressBarBackgroundColor
         )
         Text(
