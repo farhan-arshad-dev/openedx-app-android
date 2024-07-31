@@ -90,7 +90,7 @@ class AllEnrolledCoursesViewModel(
                 }
                 coursesList.clear()
                 coursesList.addAll(response.courses)
-                _uiState.update { it.copy(courses = coursesList) }
+                _uiState.update { it.copy(courses = coursesList.toList()) }
             } catch (e: Exception) {
                 if (e.isInternetError()) {
                     _uiMessage.emit(UIMessage.SnackBarMessage(resourceManager.getString(R.string.core_error_no_connection)))
@@ -132,7 +132,7 @@ class AllEnrolledCoursesViewModel(
                     page = -1
                     coursesList.addAll(cachedList)
                 }
-                _uiState.update { it.copy(courses = coursesList) }
+                _uiState.update { it.copy(courses = coursesList.toList()) }
             } catch (e: Exception) {
                 if (e.isInternetError()) {
                     _uiMessage.emit(UIMessage.SnackBarMessage(resourceManager.getString(R.string.core_error_no_connection)))
