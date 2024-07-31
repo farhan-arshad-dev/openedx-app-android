@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -66,7 +67,6 @@ import androidx.fragment.app.FragmentManager
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import org.koin.androidx.compose.koinViewModel
-import org.openedx.Lock
 import org.openedx.core.R
 import org.openedx.core.UIMessage
 import org.openedx.core.domain.model.Certificate
@@ -180,6 +180,7 @@ private fun AllEnrolledCoursesView(
         scaffoldState = scaffoldState,
         modifier = Modifier
             .fillMaxSize()
+            .navigationBarsPadding()
             .semantics {
                 testTagsAsResourceId = true
             },
@@ -256,7 +257,6 @@ private fun AllEnrolledCoursesView(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .navigationBarsPadding()
                             .pullRefresh(pullRefreshState),
                     ) {
                         Column(
@@ -327,7 +327,7 @@ private fun AllEnrolledCoursesView(
                                                             }
                                                         )
                                                     }
-                                                    item {
+                                                    item(span = { GridItemSpan(columns) }) {
                                                         if (state.canLoadMore) {
                                                             Box(
                                                                 modifier = Modifier
