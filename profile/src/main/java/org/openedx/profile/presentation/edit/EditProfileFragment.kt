@@ -1,4 +1,7 @@
-@file:OptIn(ExperimentalComposeUiApi::class, ExperimentalComposeUiApi::class)
+@file:OptIn(
+    ExperimentalComposeUiApi::class, ExperimentalComposeUiApi::class,
+    ExperimentalComposeUiApi::class
+)
 
 package org.openedx.profile.presentation.edit
 
@@ -40,6 +43,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -55,6 +59,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.Report
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material.rememberScaffoldState
@@ -71,6 +76,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -177,6 +183,7 @@ class EditProfileFragment : Fragment() {
                 val selectedImageUri by viewModel.selectedImageUri.observeAsState()
                 val isImageDeleted by viewModel.deleteImage.observeAsState(false)
                 val leaveDialog by viewModel.showLeaveDialog.observeAsState(false)
+                val focusManager = LocalFocusManager.current
 
                 EditProfileScreen(
                     windowSize = windowSize,
@@ -212,6 +219,7 @@ class EditProfileFragment : Fragment() {
                                     }
                             }
                         }
+                        focusManager.clearFocus()
                     },
                     onDataChanged = {
                         viewModel.profileDataChanged = it
@@ -398,6 +406,8 @@ private fun EditProfileScreen(
     }
 
     val isImeVisible by isImeVisibleState()
+
+    val requiresParentalConsent = uiState.account.requiresParentalConsent
 
     LaunchedEffect(bottomSheetScaffoldState.isVisible) {
         if (!bottomSheetScaffoldState.isVisible) {
@@ -627,28 +637,32 @@ private fun EditProfileScreen(
                                         .clip(CircleShape)
 
                                         .noRippleClickable {
-                                            isOpenChangeImageDialogState = true
-                                            if (!uiState.account.isOlderThanMinAge()) {
-                                                openWarningMessageDialog = true
+                                            if (!requiresParentalConsent) {
+                                                isOpenChangeImageDialogState = true
+                                                if (!uiState.account.isOlderThanMinAge()) {
+                                                    openWarningMessageDialog = true
+                                                }
                                             }
                                         }
                                 )
-                                Icon(
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .clip(CircleShape)
-                                        .background(MaterialTheme.appColors.primary)
-                                        .padding(5.dp)
-                                        .clickable {
-                                            isOpenChangeImageDialogState = true
-                                            if (!uiState.account.isOlderThanMinAge()) {
-                                                openWarningMessageDialog = true
-                                            }
-                                        },
-                                    painter = painterResource(id = R.drawable.profile_ic_edit_image),
-                                    contentDescription = null,
-                                    tint = MaterialTheme.appColors.onPrimary
-                                )
+                                if (!requiresParentalConsent) {
+                                    Icon(
+                                        modifier = Modifier
+                                            .size(32.dp)
+                                            .clip(CircleShape)
+                                            .background(MaterialTheme.appColors.primary)
+                                            .padding(5.dp)
+                                            .clickable {
+                                                isOpenChangeImageDialogState = true
+                                                if (!uiState.account.isOlderThanMinAge()) {
+                                                    openWarningMessageDialog = true
+                                                }
+                                            },
+                                        painter = painterResource(id = R.drawable.profile_ic_edit_image),
+                                        contentDescription = null,
+                                        tint = MaterialTheme.appColors.onPrimary
+                                    )
+                                }
                             }
                             Spacer(modifier = Modifier.height(20.dp))
                             Text(
@@ -657,12 +671,13 @@ private fun EditProfileScreen(
                                 style = MaterialTheme.appTypography.headlineSmall,
                                 color = MaterialTheme.appColors.textPrimary
                             )
-                            Spacer(modifier = Modifier.height(24.dp))
-                            Text(
-                                modifier = Modifier
-                                    .testTag("txt_edit_profile_limited_profile_label")
-                                    .clickable {
-                                        if (!LocaleUtils.isProfileLimited(mapFields[YEAR_OF_BIRTH].toString())) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            if (!requiresParentalConsent) {
+                                Text(
+                                    modifier = Modifier
+                                        .testTag("txt_edit_profile_limited_profile_label")
+                                        .clickable {
+//                                      if (!LocaleUtils.isProfileLimited(mapFields[YEAR_OF_BIRTH].toString())) {
                                             val privacy = if (uiState.isLimited) {
                                                 Account.Privacy.ALL_USERS
                                             } else {
@@ -670,14 +685,46 @@ private fun EditProfileScreen(
                                             }
                                             mapFields[ACCOUNT_PRIVACY] = privacy
                                             onLimitedProfileChange(!uiState.isLimited)
+//                                      } else {
+//                                          openWarningMessageDialog = true
+//                                      }
+                                        },
+                                    text = stringResource(if (uiState.isLimited) R.string.profile_switch_to_full else R.string.profile_switch_to_limited),
+                                    color = MaterialTheme.appColors.textAccent,
+                                    style = MaterialTheme.appTypography.labelLarge
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                if (requiresParentalConsent) {
+                                    Icon(
+                                        imageVector = Icons.Filled.VisibilityOff,
+                                        tint = MaterialTheme.appColors.textSecondary,
+                                        contentDescription = null
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                }
+                                Text(
+                                    modifier = Modifier
+                                        .align(Alignment.CenterVertically)
+                                        .testTag("txt_edit_profile_limited_profile_message"),
+                                    text = stringResource(
+                                        if (requiresParentalConsent) {
+                                            R.string.profile_restricted_profile_message
                                         } else {
-                                            openWarningMessageDialog = true
+                                            R.string.profile_unrestricted_profile_message
                                         }
-                                    },
-                                text = stringResource(if (uiState.isLimited) R.string.profile_switch_to_full else R.string.profile_switch_to_limited),
-                                color = MaterialTheme.appColors.textAccent,
-                                style = MaterialTheme.appTypography.labelLarge
-                            )
+                                    ),
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.appColors.textSecondary,
+                                    style = MaterialTheme.appTypography.bodySmall,
+                                )
+                            }
+
                             Spacer(modifier = Modifier.height(20.dp))
                             ProfileFields(
                                 disabled = uiState.isLimited,
@@ -895,43 +942,44 @@ private fun ProfileFields(
         LocaleUtils.getLanguageByLanguageCode(languageProficiency[0].code)
     } else ""
     Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+//        SelectableField(
+//            name = stringResource(id = R.string.profile_year),
+//            initialValue = mapFields[YEAR_OF_BIRTH].toString(),
+//            onClick = {
+//                onFieldClick(YEAR_OF_BIRTH, context.getString(R.string.profile_year))
+//            }
+//        )
         SelectableField(
-            name = stringResource(id = R.string.profile_year),
-            initialValue = mapFields[YEAR_OF_BIRTH].toString(),
+            name = stringResource(id = R.string.profile_location),
+            initialValue = LocaleUtils.getCountryByCountryCode(mapFields[COUNTRY].toString()),
+            disabled = disabled,
             onClick = {
-                onFieldClick(YEAR_OF_BIRTH, context.getString(R.string.profile_year))
+                onFieldClick(COUNTRY, context.getString(R.string.profile_location))
             }
         )
-        if (!disabled) {
-            SelectableField(
-                name = stringResource(id = R.string.profile_location),
-                initialValue = LocaleUtils.getCountryByCountryCode(mapFields[COUNTRY].toString()),
-                onClick = {
-                    onFieldClick(COUNTRY, context.getString(R.string.profile_location))
-                }
-            )
-            SelectableField(
-                name = stringResource(id = R.string.profile_spoken_language),
-                initialValue = lang,
-                onClick = {
-                    onFieldClick(
-                        LANGUAGE,
-                        context.getString(R.string.profile_spoken_language)
-                    )
-                }
-            )
-            InputEditField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(132.dp),
-                name = stringResource(id = R.string.profile_about_me),
-                initialValue = mapFields[BIO].toString(),
-                onValueChanged = {
-                    onValueChanged(it.take(BIO_TEXT_FIELD_LIMIT))
-                },
-                onDoneClick = onDoneClick
-            )
-        }
+        SelectableField(
+            name = stringResource(id = R.string.profile_spoken_language),
+            initialValue = lang,
+            disabled = disabled,
+            onClick = {
+                onFieldClick(
+                    LANGUAGE,
+                    context.getString(R.string.profile_spoken_language)
+                )
+            }
+        )
+        InputEditField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(132.dp),
+            name = stringResource(id = R.string.profile_about_me),
+            initialValue = mapFields[BIO].toString(),
+            disabled = disabled,
+            onValueChanged = {
+                onValueChanged(it.take(BIO_TEXT_FIELD_LIMIT))
+            },
+            onDoneClick = onDoneClick
+        )
     }
 }
 
@@ -981,14 +1029,17 @@ private fun SelectableField(
                 Icon(
                     imageVector = Icons.Filled.ExpandMore,
                     contentDescription = null,
-                    tint = MaterialTheme.appColors.textPrimaryVariant
+                    tint = MaterialTheme.appColors.textPrimaryVariant.copy(
+                        alpha = if (disabled) 0.4f else 1f
+                    )
                 )
             },
             modifier = Modifier
                 .testTag("tf_select_${name.tagId()}")
                 .fillMaxWidth()
                 .noRippleClickable {
-                    onClick()
+                    if (!disabled)
+                        onClick()
                 },
             placeholder = {
                 Text(
@@ -1040,7 +1091,9 @@ private fun InputEditField(
             shape = MaterialTheme.appShapes.textFieldShape,
             placeholder = {
                 Text(
-                    modifier = Modifier.testTag("txt_placeholder_${name.tagId()}"),
+                    modifier = Modifier
+                        .alpha(if (disabled) ContentAlpha.disabled else ContentAlpha.high)
+                        .testTag("txt_placeholder_${name.tagId()}"),
                     text = name,
                     color = MaterialTheme.appColors.textFieldHint,
                     style = MaterialTheme.appTypography.bodyMedium
