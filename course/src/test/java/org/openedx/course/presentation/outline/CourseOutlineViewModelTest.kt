@@ -163,7 +163,11 @@ class CourseOutlineViewModelTest {
         end = Date(),
         media = null,
         courseAccessDetails = CourseAccessDetails(
-            Date(), CoursewareAccess(
+            hasUnmetPrerequisites = false,
+            isTooEarly = false,
+            isStaff = false,
+            auditAccessExpires = Date(),
+            coursewareAccess = CoursewareAccess(
                 true,
                 "",
                 "",
@@ -442,11 +446,10 @@ class CourseOutlineViewModelTest {
             }
         }
         viewModel.getCourseData()
-        viewModel.updateCourseData()
         advanceUntilIdle()
 
-        coVerify(exactly = 3) { interactor.getCourseStructure(any()) }
-        coVerify(exactly = 3) { interactor.getCourseStatus(any()) }
+        coVerify(exactly = 2) { interactor.getCourseStructure(any()) }
+        coVerify(exactly = 2) { interactor.getCourseStatus(any()) }
 
         assert(message.await() == null)
         assert(viewModel.uiState.value is CourseOutlineUIState.CourseData)

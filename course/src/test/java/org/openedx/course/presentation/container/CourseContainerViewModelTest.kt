@@ -31,10 +31,15 @@ import org.openedx.core.data.model.User
 import org.openedx.core.data.storage.CorePreferences
 import org.openedx.core.domain.model.AppConfig
 import org.openedx.core.domain.model.CourseAccessDetails
+import org.openedx.core.domain.model.CourseAccessError
 import org.openedx.core.domain.model.CourseDatesCalendarSync
+import org.openedx.core.domain.model.CourseEnrollmentDetails
+import org.openedx.core.domain.model.CourseInfoOverview
+import org.openedx.core.domain.model.CourseSharingUtmParameters
 import org.openedx.core.domain.model.CourseStructure
 import org.openedx.core.domain.model.CoursewareAccess
 import org.openedx.core.domain.model.EnrollmentDetails
+import org.openedx.core.domain.model.iap.ProductInfo
 import org.openedx.core.presentation.global.AppData
 import org.openedx.core.system.CalendarManager
 import org.openedx.core.system.ResourceManager
@@ -93,6 +98,35 @@ class CourseContainerViewModelTest {
             isDeepLinkEnabled = false,
         )
     )
+    private val courseDetails = CourseEnrollmentDetails(
+        id = "id",
+        courseUpdates = "",
+        courseHandouts = "",
+        discussionUrl = "",
+        courseAccessDetails = CourseAccessDetails(
+            false,
+            false,
+            false,
+            null,
+            coursewareAccess = CoursewareAccess(
+                false, "", "", "",
+                "", ""
+
+            )
+        ),
+        certificate = null,
+        enrollmentDetails = EnrollmentDetails(
+            null, "audit", false, Date()
+        ),
+        courseInfoOverview = CourseInfoOverview(
+            "Open edX Demo Course", "", "OpenedX", Date(),
+            "", "", null, false, null,
+            CourseSharingUtmParameters("", ""),
+            "", listOf(), ProductInfo("", "", 1.0)
+        )
+
+    )
+
     private val courseStructure = CourseStructure(
         root = "",
         blockData = listOf(),
@@ -106,7 +140,11 @@ class CourseContainerViewModelTest {
         end = null,
         media = null,
         courseAccessDetails = CourseAccessDetails(
-            Date(), coursewareAccess = CoursewareAccess(
+            hasUnmetPrerequisites = false,
+            isTooEarly = false,
+            isStaff = false,
+            auditAccessExpires = Date(),
+            coursewareAccess = CoursewareAccess(
                 true,
                 "",
                 "",
@@ -139,15 +177,45 @@ class CourseContainerViewModelTest {
         startType = "",
         end = null,
         courseAccessDetails = org.openedx.core.data.model.CourseAccessDetails(
-            "",
+            hasUnmetPrerequisites = false,
+            isTooEarly = false,
+            isStaff = false,
+            auditAccessExpires = "",
             coursewareAccess = null
         ),
         media = null,
         certificate = null,
         isSelfPaced = false,
         progress = null,
-        enrollmentDetails = org.openedx.core.data.model.EnrollmentDetails("", "", false, ""),
+        enrollmentDetails = org.openedx.core.data.model.EnrollmentDetails("", "", "", false, ""),
         courseModes = arrayListOf()
+    )
+
+    private val enrollmentDetails = CourseEnrollmentDetails(
+        id = "",
+        courseUpdates = "",
+        courseHandouts = "",
+        discussionUrl = "",
+        courseAccessDetails = CourseAccessDetails(
+            false,
+            false,
+            false,
+            null,
+            CoursewareAccess(
+                false, "", "", "",
+                "", ""
+            )
+        ),
+        certificate = null,
+        enrollmentDetails = EnrollmentDetails(
+            null, "", false, null
+        ),
+        courseInfoOverview = CourseInfoOverview(
+            "Open edX Demo Course", "", "OpenedX", null,
+            "", "", null, false, null,
+            CourseSharingUtmParameters("", ""),
+            "", listOf(), null
+        )
     )
 
     @Before
@@ -161,6 +229,7 @@ class CourseContainerViewModelTest {
         every { courseNotifier.notifier } returns emptyFlow()
         every { calendarManager.getCourseCalendarTitle(any()) } returns calendarTitle
         every { config.getApiHostURL() } returns "baseUrl"
+        coEvery { interactor.getEnrollmentDetails(any()) } returns courseDetails
         every { imageProcessor.loadImage(any(), any(), any()) } returns Unit
         every { imageProcessor.applyBlur(any(), any()) } returns mockBitmap
     }
@@ -171,9 +240,8 @@ class CourseContainerViewModelTest {
     }
 
     @Test
-    fun `getCourseStructure internet connection exception`() = runTest {
+    fun `getCourseEnrollmentDetails internet connection exception`() = runTest {
         val viewModel = CourseContainerViewModel(
-            "",
             "",
             "",
             "",
@@ -192,24 +260,33 @@ class CourseContainerViewModelTest {
             courseRouter
         )
         every { networkConnection.isOnline() } returns true
-        coEvery { interactor.getCourseStructure(any(), any()) } throws UnknownHostException()
-        every { analytics.logScreenEvent(CourseAnalyticsEvent.DASHBOARD.eventName, any()) } returns Unit
-        viewModel.preloadCourseStructure()
+        coEvery { interactor.getEnrollmentDetails(any()) } throws UnknownHostException()
+        every {
+            analytics.logScreenEvent(
+                CourseAnalyticsEvent.DASHBOARD.eventName,
+                any()
+            )
+        } returns Unit
+        viewModel.fetchCourseDetails()
         advanceUntilIdle()
 
-        coVerify(exactly = 1) { interactor.getCourseStructure(any(), any()) }
-        verify(exactly = 1) { analytics.logScreenEvent(CourseAnalyticsEvent.DASHBOARD.eventName, any()) }
+        coVerify(exactly = 1) { interactor.getEnrollmentDetails(any()) }
+        verify(exactly = 1) {
+            analytics.logScreenEvent(
+                CourseAnalyticsEvent.DASHBOARD.eventName,
+                any()
+            )
+        }
 
         val message = viewModel.errorMessage.value
         assertEquals(noInternet, message)
         assert(!viewModel.refreshing.value)
-        assert(viewModel.dataReady.value == null)
+        assert(viewModel.courseAccessStatus.value == null)
     }
 
     @Test
-    fun `getCourseStructure unknown exception`() = runTest {
+    fun `getCourseEnrollmentDetails unknown exception`() = runTest {
         val viewModel = CourseContainerViewModel(
-            "",
             "",
             "",
             "",
@@ -228,24 +305,30 @@ class CourseContainerViewModelTest {
             courseRouter
         )
         every { networkConnection.isOnline() } returns true
-        coEvery { interactor.getCourseStructure(any(), any()) } throws Exception()
-        every { analytics.logScreenEvent(CourseAnalyticsEvent.DASHBOARD.eventName, any()) } returns Unit
-        viewModel.preloadCourseStructure()
+        coEvery { interactor.getEnrollmentDetails(any()) } throws Exception()
+        every {
+            analytics.logScreenEvent(
+                CourseAnalyticsEvent.DASHBOARD.eventName,
+                any()
+            )
+        } returns Unit
+        viewModel.fetchCourseDetails()
         advanceUntilIdle()
 
-        coVerify(exactly = 1) { interactor.getCourseStructure(any(), any()) }
-        verify(exactly = 1) { analytics.logScreenEvent(CourseAnalyticsEvent.DASHBOARD.eventName, any()) }
-
-        val message = viewModel.errorMessage.value
-        assertEquals(somethingWrong, message)
+        coVerify(exactly = 1) { interactor.getEnrollmentDetails(any()) }
+        verify(exactly = 1) {
+            analytics.logScreenEvent(
+                CourseAnalyticsEvent.DASHBOARD.eventName,
+                any()
+            )
+        }
         assert(!viewModel.refreshing.value)
-        assert(viewModel.dataReady.value == null)
+        assert(viewModel.courseAccessStatus.value == CourseAccessError.UNKNOWN)
     }
 
     @Test
-    fun `getCourseStructure success with internet`() = runTest {
+    fun `getCourseEnrollmentDetails success with internet`() = runTest {
         val viewModel = CourseContainerViewModel(
-            "",
             "",
             "",
             "",
@@ -264,23 +347,31 @@ class CourseContainerViewModelTest {
             courseRouter
         )
         every { networkConnection.isOnline() } returns true
-        coEvery { interactor.getCourseStructure(any(), any()) } returns courseStructure
-        every { analytics.logScreenEvent(CourseAnalyticsEvent.DASHBOARD.eventName, any()) } returns Unit
-        viewModel.preloadCourseStructure()
+        coEvery { interactor.getEnrollmentDetails(any()) } returns enrollmentDetails
+        every {
+            analytics.logScreenEvent(
+                CourseAnalyticsEvent.DASHBOARD.eventName,
+                any()
+            )
+        } returns Unit
+        viewModel.fetchCourseDetails()
         advanceUntilIdle()
 
-        coVerify(exactly = 1) { interactor.getCourseStructure(any(), any()) }
-        verify(exactly = 1) { analytics.logScreenEvent(CourseAnalyticsEvent.DASHBOARD.eventName, any()) }
-
+        coVerify(exactly = 1) { interactor.getEnrollmentDetails(any()) }
+        verify(exactly = 1) {
+            analytics.logScreenEvent(
+                CourseAnalyticsEvent.DASHBOARD.eventName,
+                any()
+            )
+        }
         assert(viewModel.errorMessage.value == null)
         assert(!viewModel.refreshing.value)
-        assert(viewModel.dataReady.value != null)
+        assert(viewModel.courseAccessStatus.value != null)
     }
 
     @Test
-    fun `getCourseStructure success without internet`() = runTest {
+    fun `getCourseEnrollmentDetails success without internet`() = runTest {
         val viewModel = CourseContainerViewModel(
-            "",
             "",
             "",
             "",
@@ -299,26 +390,31 @@ class CourseContainerViewModelTest {
             courseRouter
         )
         every { networkConnection.isOnline() } returns false
-        coEvery { interactor.getCourseStructure(any(), any()) } returns courseStructure
-        every { analytics.logScreenEvent(any(), any()) } returns Unit
-        coEvery {
-            courseApi.getCourseStructure(any(), any(), any(), any())
-        } returns courseStructureModel
-        viewModel.preloadCourseStructure()
+        coEvery { interactor.getEnrollmentDetails(any()) } returns enrollmentDetails
+        every {
+            analytics.logScreenEvent(
+                CourseAnalyticsEvent.DASHBOARD.eventName,
+                any()
+            )
+        } returns Unit
+        viewModel.fetchCourseDetails()
         advanceUntilIdle()
-
-        coVerify(exactly = 0) { courseApi.getCourseStructure(any(), any(), any(), any()) }
-        verify(exactly = 1) { analytics.logScreenEvent(any(), any()) }
+        coVerify(exactly = 0) { courseApi.getEnrollmentDetails(any()) }
+        verify(exactly = 1) {
+            analytics.logScreenEvent(
+                CourseAnalyticsEvent.DASHBOARD.eventName,
+                any()
+            )
+        }
 
         assert(viewModel.errorMessage.value == null)
         assert(!viewModel.refreshing.value)
-        assert(viewModel.dataReady.value != null)
+        assert(viewModel.courseAccessStatus.value != null)
     }
 
     @Test
     fun `updateData no internet connection exception`() = runTest {
         val viewModel = CourseContainerViewModel(
-            "",
             "",
             "",
             "",
@@ -354,7 +450,6 @@ class CourseContainerViewModelTest {
             "",
             "",
             "",
-            "",
             appData,
             config,
             interactor,
@@ -387,7 +482,6 @@ class CourseContainerViewModelTest {
             "",
             "",
             "",
-            "",
             appData,
             config,
             interactor,
@@ -402,6 +496,7 @@ class CourseContainerViewModelTest {
             imageProcessor,
             courseRouter
         )
+        coEvery { interactor.getEnrollmentDetails(any()) } returns courseDetails
         coEvery { interactor.getCourseStructure(any(), true) } returns courseStructure
         coEvery { courseNotifier.send(CourseStructureUpdated("")) } returns Unit
         viewModel.updateData()
