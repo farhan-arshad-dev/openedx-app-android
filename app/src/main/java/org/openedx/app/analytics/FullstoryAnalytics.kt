@@ -2,9 +2,10 @@ package org.openedx.app.analytics
 
 import com.fullstory.FS
 import com.fullstory.FSSessionData
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import org.openedx.core.utils.Logger
 
-class FullstoryAnalytics : Analytics {
+class FullstoryAnalytics(isFirebaseEnabled: Boolean = false) : Analytics {
 
     private val logger = Logger(TAG)
 
@@ -12,6 +13,10 @@ class FullstoryAnalytics : Analytics {
         FS.setReadyListener { sessionData: FSSessionData ->
             val sessionUrl = sessionData.currentSessionURL
             logger.d { "FullStory Session URL is: $sessionUrl" }
+            if (isFirebaseEnabled) {
+                val instance = FirebaseCrashlytics.getInstance()
+                instance.setCustomKey("fullstory_session_url", sessionUrl)
+            }
         }
     }
 
