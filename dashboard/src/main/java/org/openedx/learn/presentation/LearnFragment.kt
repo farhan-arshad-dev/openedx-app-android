@@ -15,12 +15,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.ManageAccounts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,7 +36,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.viewpager2.widget.ViewPager2
 import org.koin.androidx.compose.koinViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -55,7 +52,6 @@ import org.openedx.core.ui.windowSizeValue
 import org.openedx.dashboard.R
 import org.openedx.dashboard.databinding.FragmentLearnBinding
 import org.openedx.learn.LearnType
-import org.openedx.core.R as CoreR
 
 class LearnFragment : Fragment(R.layout.fragment_learn) {
 
@@ -75,7 +71,6 @@ class LearnFragment : Fragment(R.layout.fragment_learn) {
         binding.header.setContent {
             OpenEdXTheme {
                 Header(
-                    fragmentManager = requireParentFragment().parentFragmentManager,
                     defaultLearnType = defaultLearnType,
                     viewPager = binding.viewPager
                 )
@@ -109,7 +104,7 @@ class LearnFragment : Fragment(R.layout.fragment_learn) {
     companion object {
         private const val ARG_OPEN_TAB = "open_tab"
         fun newInstance(
-            openTab: String = LearnTab.COURSES.name
+            openTab: String = LearnTab.COURSES.name,
         ): LearnFragment {
             val fragment = LearnFragment()
             fragment.arguments = bundleOf(
@@ -122,7 +117,6 @@ class LearnFragment : Fragment(R.layout.fragment_learn) {
 
 @Composable
 private fun Header(
-    fragmentManager: FragmentManager,
     defaultLearnType: LearnType,
     viewPager: ViewPager2,
 ) {
@@ -147,9 +141,6 @@ private fun Header(
     ) {
         Title(
             label = stringResource(id = R.string.dashboard_learn),
-            onSettingsClick = {
-                viewModel.onSettingsClick(fragmentManager)
-            }
         )
         if (viewModel.isProgramTypeWebView) {
             LearnDropdownMenu(
@@ -167,7 +158,6 @@ private fun Header(
 private fun Title(
     modifier: Modifier = Modifier,
     label: String,
-    onSettingsClick: () -> Unit,
 ) {
     Box(
         modifier = modifier.fillMaxWidth()
@@ -180,20 +170,6 @@ private fun Title(
             color = MaterialTheme.appColors.textDark,
             style = MaterialTheme.appTypography.headlineBold
         )
-        IconButton(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(end = 12.dp),
-            onClick = {
-                onSettingsClick()
-            }
-        ) {
-            Icon(
-                imageVector = Icons.Default.ManageAccounts,
-                tint = MaterialTheme.appColors.primary,
-                contentDescription = stringResource(id = CoreR.string.core_accessibility_settings)
-            )
-        }
     }
 }
 
@@ -290,10 +266,7 @@ private fun LearnDropdownMenu(
 @Composable
 private fun HeaderPreview() {
     OpenEdXTheme {
-        Title(
-            label = stringResource(id = R.string.dashboard_learn),
-            onSettingsClick = {}
-        )
+        Title(label = stringResource(id = R.string.dashboard_learn))
     }
 }
 
