@@ -653,6 +653,19 @@ private fun PrimaryCourseCard(
     }
 }
 
+/**
+ * Manages and displays a dynamic list of primary course card buttons for up to four views: Due,
+ * Future, Upgrade, and Resume. The views are prioritized in the following order: Due, Future,
+ * Upgrade, and Resume.
+ *
+ * If all four views are active, the Future view is omitted to ensure only three buttons
+ * are shown. Unavailable views are automatically excluded from the list, preserving the
+ * established priority.
+ *
+ * Additionally, the visible buttons adhere to a specific color scheme, respecting the
+ * priority order of the colors: caution, info, and brand. The brand color is fixed for the
+ * Resume view.
+ */
 @Composable
 private fun PrimaryCourseButtons(
     modifier: Modifier = Modifier,
@@ -671,15 +684,21 @@ private fun PrimaryCourseButtons(
     if (!pastAssignments.isNullOrEmpty()) {
         viewsList.add {
             val nearestAssignment = pastAssignments.maxBy { it.date }
-            val title = if (pastAssignments.size == 1) nearestAssignment.title else null
+            val title = if (pastAssignments.size == 1) {
+                nearestAssignment.title
+            } else {
+                stringResource(R.string.dashboard_assignment_due_default)
+            }
             AssignmentItem(
-                modifier = Modifier.clickable {
-                    if (pastAssignments.size == 1) {
-                        resumeBlockId(primaryCourse, nearestAssignment.blockId)
-                    } else {
-                        navigateToDates(primaryCourse)
-                    }
-                },
+                modifier = Modifier
+                    .background(MaterialTheme.appColors.primaryCardCautionBackground)
+                    .clickable {
+                        if (pastAssignments.size == 1) {
+                            resumeBlockId(primaryCourse, nearestAssignment.blockId)
+                        } else {
+                            navigateToDates(primaryCourse)
+                        }
+                    },
                 painter = rememberVectorPainter(Icons.Default.Warning),
                 title = title,
                 info = pluralStringResource(
@@ -697,13 +716,20 @@ private fun PrimaryCourseButtons(
             val nearestAssignment = futureAssignments.minBy { it.date }
             val title = if (futureAssignments.size == 1) nearestAssignment.title else null
             AssignmentItem(
-                modifier = Modifier.clickable {
-                    if (futureAssignments.size == 1) {
-                        resumeBlockId(primaryCourse, nearestAssignment.blockId)
-                    } else {
-                        navigateToDates(primaryCourse)
-                    }
-                },
+                modifier = Modifier
+                    .background(
+                        if (!pastAssignments.isNullOrEmpty())
+                            MaterialTheme.appColors.primaryCardInfoBackground
+                        else
+                            MaterialTheme.appColors.primaryCardCautionBackground
+                    )
+                    .clickable {
+                        if (futureAssignments.size == 1) {
+                            resumeBlockId(primaryCourse, nearestAssignment.blockId)
+                        } else {
+                            navigateToDates(primaryCourse)
+                        }
+                    },
                 painter = painterResource(id = CoreR.drawable.ic_core_chapter_icon),
                 title = title,
                 info = stringResource(
@@ -988,7 +1014,7 @@ private val mockCourse = EnrolledCourse(
     certificate = Certificate(""),
     mode = "mode",
     isActive = true,
-    progress = Progress.DEFAULT_PROGRESS,
+    progress = Progress(4, 10),
     courseStatus = CourseStatus("", emptyList(), "", "Unit name"),
     courseAssignments = mockCourseAssignments,
     course = EnrolledCourseData(
