@@ -48,8 +48,8 @@ android {
         applicationId appId
         minSdk 24
         targetSdk 34
-        versionCode 1
-        versionName "1.0.0"
+        versionCode 6000001
+        versionName "6.0.1"
 
         resourceConfigurations += ["en", "uk"]
 
@@ -92,11 +92,12 @@ android {
     buildTypes {
         release {
             minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
             if (firebaseEnabled) {
                 firebaseCrashlytics {
-                    mappingFileUploadEnabled false
+                    mappingFileUploadEnabled true
                 }
             }
         }
