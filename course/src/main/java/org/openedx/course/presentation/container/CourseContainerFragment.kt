@@ -71,13 +71,13 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import org.openedx.core.domain.model.CourseAccessError
+import org.openedx.core.domain.model.iap.IAPFlow
+import org.openedx.core.domain.model.iap.IAPFlowSource
 import org.openedx.core.extension.isTrue
 import org.openedx.core.extension.takeIfNotEmpty
-import org.openedx.core.presentation.IAPAnalyticsScreen
 import org.openedx.core.presentation.dialog.IAPDialogFragment
 import org.openedx.core.presentation.global.viewBinding
 import org.openedx.core.presentation.iap.IAPAction
-import org.openedx.core.presentation.iap.IAPFlow
 import org.openedx.core.presentation.iap.IAPRequestType
 import org.openedx.core.presentation.iap.IAPUIState
 import org.openedx.core.presentation.settings.calendarsync.CalendarSyncDialog
@@ -425,7 +425,7 @@ fun CourseDashboard(
                                 ) {
                                     IAPDialogFragment.newInstance(
                                         iapFlow = IAPFlow.USER_INITIATED,
-                                        screenName = IAPAnalyticsScreen.COURSE_DASHBOARD.screenName,
+                                        screenName = IAPFlowSource.COURSE_DASHBOARD.screen,
                                         courseId = viewModel.courseId,
                                         courseName = viewModel.courseName,
                                         isSelfPaced = viewModel.courseDetails?.courseInfoOverview?.isSelfPaced.isTrue(),
@@ -934,7 +934,7 @@ private fun SetupCourseAccessErrorButtons(
             ) {
                 IAPDialogFragment.newInstance(
                     iapFlow = IAPFlow.USER_INITIATED,
-                    screenName = IAPAnalyticsScreen.COURSE_DASHBOARD.screenName,
+                    screenName = IAPFlowSource.COURSE_DASHBOARD.screen,
                     courseId = viewModel.courseId,
                     courseName = viewModel.courseName,
                     isSelfPaced = viewModel.courseDetails?.courseInfoOverview?.isSelfPaced.isTrue(),

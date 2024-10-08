@@ -5,6 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class PurchaseFlowData(
+    var iapFlow: IAPFlow? = null,
     var screenName: String? = null,
     var courseId: String? = null,
     var courseName: String? = null,
@@ -22,6 +23,7 @@ data class PurchaseFlowData(
     var flowStartTime: Long = 0
 
     fun reset() {
+        iapFlow = null
         screenName = null
         courseId = null
         courseName = null
@@ -35,4 +37,20 @@ data class PurchaseFlowData(
         basketId = -1
         flowStartTime = 0
     }
+}
+
+enum class IAPFlow(val value: String) {
+    RESTORE("restore"),
+    SILENT("silent"),
+    USER_INITIATED("user_initiated");
+
+    fun value(): String {
+        return this.name.lowercase()
+    }
+}
+
+enum class IAPFlowSource(val screen: String) {
+    COURSE_ENROLLMENT("course_enrollment"),
+    COURSE_DASHBOARD("course_dashboard"),
+    PROFILE("profile"),
 }

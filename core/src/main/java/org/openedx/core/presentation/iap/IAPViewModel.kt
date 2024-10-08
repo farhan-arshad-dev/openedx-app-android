@@ -20,6 +20,8 @@ import org.openedx.core.BaseViewModel
 import org.openedx.core.R
 import org.openedx.core.UIMessage
 import org.openedx.core.domain.interactor.IAPInteractor
+import org.openedx.core.domain.model.iap.IAPFlow
+import org.openedx.core.domain.model.iap.IAPFlowSource
 import org.openedx.core.domain.model.iap.PurchaseFlowData
 import org.openedx.core.exception.iap.IAPException
 import org.openedx.core.module.billing.BillingProcessor
@@ -33,7 +35,6 @@ import org.openedx.core.system.notifier.UpdateCourseData
 import org.openedx.core.utils.TimeUtils
 
 class IAPViewModel(
-    iapFlow: IAPFlow,
     private val purchaseFlowData: PurchaseFlowData,
     private val iapInteractor: IAPInteractor,
     private val analytics: IAPAnalytics,
@@ -91,7 +92,7 @@ class IAPViewModel(
             }.distinctUntilChanged().launchIn(viewModelScope)
         }
 
-        when (iapFlow) {
+        when (purchaseFlowData.iapFlow) {
             IAPFlow.USER_INITIATED -> {
                 eventLogger.loadIAPScreenEvent()
                 loadPrice()
@@ -102,6 +103,8 @@ class IAPViewModel(
                 purchaseFlowData.flowStartTime = TimeUtils.getCurrentTime()
                 updateCourseData()
             }
+
+            else -> {}
         }
     }
 
@@ -237,8 +240,8 @@ class IAPViewModel(
 
     private fun updateCourseData() {
         viewModelScope.launch(Dispatchers.IO) {
-            purchaseFlowData.courseId?.let { courseId ->
-                iapNotifier.send(UpdateCourseData(courseId))
+            purchaseFlowData.courseId?.let {
+                iapNotifier.send(UpdateCourseData(IAPFlowSource.COURSE_DASHBOARD.screen == purchaseData.screenName))
             }
         }
     }
