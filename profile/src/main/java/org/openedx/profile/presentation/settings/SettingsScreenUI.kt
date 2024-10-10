@@ -39,7 +39,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -61,7 +60,7 @@ import org.openedx.core.presentation.iap.IAPUIState
 import org.openedx.core.system.notifier.app.AppUpgradeEvent
 import org.openedx.core.ui.CheckingPurchasesDialog
 import org.openedx.core.ui.FakePurchasesFulfillmentCompleted
-import org.openedx.core.ui.OpenEdXButton
+import org.openedx.core.ui.OpenEdXBrandButton
 import org.openedx.core.ui.Toolbar
 import org.openedx.core.ui.UpgradeErrorDialog
 import org.openedx.core.ui.WindowSize
@@ -450,12 +449,12 @@ private fun LogoutButton(onClick: () -> Unit) {
                 modifier = Modifier.testTag("txt_logout"),
                 text = stringResource(id = profileR.string.profile_logout),
                 style = MaterialTheme.appTypography.titleMedium,
-                color = MaterialTheme.appColors.error
+                color = MaterialTheme.appColors.textPrimary
             )
             Icon(
                 painterResource(id = profileR.drawable.profile_ic_logout),
                 contentDescription = null,
-                tint = MaterialTheme.appColors.error
+                tint = MaterialTheme.appColors.textPrimary
             )
         }
     }
@@ -522,9 +521,8 @@ private fun LogoutDialog(
                     textAlign = TextAlign.Center
                 )
                 Spacer(Modifier.size(36.dp))
-                OpenEdXButton(
+                OpenEdXBrandButton(
                     text = stringResource(id = profileR.string.profile_logout),
-                    backgroundColor = MaterialTheme.appColors.warning,
                     onClick = onLogoutClick,
                     content = {
                         Box(
@@ -538,7 +536,7 @@ private fun LogoutDialog(
                                     .testTag("txt_logout")
                                     .fillMaxWidth(),
                                 text = stringResource(id = profileR.string.profile_logout),
-                                color = MaterialTheme.appColors.textWarning,
+                                color = MaterialTheme.appColors.primaryButtonText,
                                 style = MaterialTheme.appTypography.labelLarge,
                                 textAlign = TextAlign.Center
                             )
@@ -547,7 +545,7 @@ private fun LogoutDialog(
                                     .testTag("ic_logout"),
                                 painter = painterResource(id = profileR.drawable.profile_ic_logout),
                                 contentDescription = null,
-                                tint = Color.Black
+                                tint = MaterialTheme.appColors.primaryButtonText,
                             )
                         }
                     }
@@ -774,10 +772,13 @@ private fun AppVersionItemUpgradeRequiredPreview() {
     }
 }
 
-@Preview
+@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_NO)
+@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun LogoutDialogPreview() {
-    LogoutDialog({}, {})
+    OpenEdXTheme {
+        LogoutDialog({}, {})
+    }
 }
 
 @Preview

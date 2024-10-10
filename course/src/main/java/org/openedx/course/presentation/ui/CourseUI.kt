@@ -29,8 +29,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
@@ -38,7 +36,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Snackbar
 import androidx.compose.material.Surface
@@ -91,8 +88,8 @@ import org.openedx.core.module.db.DownloadedState
 import org.openedx.core.module.db.FileType
 import org.openedx.core.ui.BackBtn
 import org.openedx.core.ui.IconText
-import org.openedx.core.ui.OpenEdXButton
-import org.openedx.core.ui.OpenEdXOutlinedButton
+import org.openedx.core.ui.OpenEdXOutlinePrimaryButton
+import org.openedx.core.ui.OpenEdXPrimaryButton
 import org.openedx.core.ui.displayCutoutForLandscape
 import org.openedx.core.ui.noRippleClickable
 import org.openedx.core.ui.theme.OpenEdXTheme
@@ -344,15 +341,10 @@ fun NavigationUnitsButtons(
         horizontalArrangement = Arrangement.Center
     ) {
         if (hasPrevBlock) {
-            OutlinedButton(
+            OpenEdXOutlinePrimaryButton(
                 modifier = Modifier
                     .height(42.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    backgroundColor = MaterialTheme.appColors.background
-                ),
-                border = BorderStroke(1.dp, MaterialTheme.appColors.primaryButtonBorder),
-                elevation = null,
-                shape = MaterialTheme.appShapes.navigationButtonShape,
+                text = stringResource(R.string.course_navigation_prev),
                 onClick = onPrevClick,
             ) {
                 Row(
@@ -375,14 +367,10 @@ fun NavigationUnitsButtons(
             }
             Spacer(Modifier.width(16.dp))
         }
-        Button(
+        OpenEdXPrimaryButton(
             modifier = Modifier
                 .height(42.dp),
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = MaterialTheme.appColors.secondaryButtonBackground
-            ),
-            elevation = null,
-            shape = MaterialTheme.appShapes.navigationButtonShape,
+            text = nextButtonText,
             onClick = onNextClick
         ) {
             Row(
@@ -1018,11 +1006,9 @@ fun CourseDatesBanner(
         }
 
         banner.bannerType.buttonResId.nonZero()?.let {
-            OpenEdXButton(
+            OpenEdXPrimaryButton(
                 text = stringResource(id = it),
                 onClick = resetDates,
-                textColor = MaterialTheme.appColors.secondaryButtonText,
-                backgroundColor = MaterialTheme.appColors.secondaryButtonBackground,
             )
         }
     }
@@ -1074,12 +1060,10 @@ fun CourseDatesBannerTablet(
             }
         }
         banner.bannerType.buttonResId.nonZero()?.let {
-            OpenEdXButton(
+            OpenEdXPrimaryButton(
                 modifier = Modifier.width(210.dp),
                 text = stringResource(id = it),
                 onClick = resetDates,
-                textColor = MaterialTheme.appColors.secondaryButtonText,
-                backgroundColor = MaterialTheme.appColors.secondaryButtonBackground,
             )
         }
     }
@@ -1122,17 +1106,12 @@ fun DatesShiftedSnackBar(
                 style = MaterialTheme.appTypography.titleSmall,
             )
             if (showAction) {
-                OpenEdXOutlinedButton(
+                OpenEdXOutlinePrimaryButton(
                     modifier = Modifier
-                        .padding(top = 16.dp)
-                        .fillMaxWidth(),
+                        .padding(top = 16.dp),
                     text = stringResource(id = coreR.string.core_dates_view_all_dates),
-                    backgroundColor = MaterialTheme.appColors.background,
-                    textColor = MaterialTheme.appColors.primary,
-                    borderColor = MaterialTheme.appColors.primary,
-                    onClick = {
-                        onViewDates()
-                    })
+                    onClick = { onViewDates() }
+                )
             }
         }
     }

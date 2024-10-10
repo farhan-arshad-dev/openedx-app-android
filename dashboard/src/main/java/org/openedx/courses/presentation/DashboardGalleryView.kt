@@ -93,7 +93,7 @@ import org.openedx.core.presentation.iap.IAPAction
 import org.openedx.core.presentation.iap.IAPUIState
 import org.openedx.core.ui.HandleUIMessage
 import org.openedx.core.ui.OfflineModeDialog
-import org.openedx.core.ui.OpenEdXButton
+import org.openedx.core.ui.OpenEdXBrandButton
 import org.openedx.core.ui.PurchasesFulfillmentCompletedDialog
 import org.openedx.core.ui.TextIcon
 import org.openedx.core.ui.UpgradeErrorDialog
@@ -944,19 +944,14 @@ private fun FindACourseButton(
     modifier: Modifier = Modifier,
     findACourseClick: () -> Unit
 ) {
-    OpenEdXButton(
+    OpenEdXBrandButton(
         modifier = modifier
-            .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 20.dp),
+        text = stringResource(id = R.string.dashboard_find_a_course),
         onClick = {
             findACourseClick()
         }
-    ) {
-        Text(
-            color = MaterialTheme.appColors.primaryButtonText,
-            text = stringResource(id = R.string.dashboard_find_a_course)
-        )
-    }
+    )
 }
 
 @Composable
@@ -1095,6 +1090,15 @@ private fun DashboardGalleryViewPreview() {
 @Composable
 private fun NoCoursesInfoPreview() {
     OpenEdXTheme {
-        NoCoursesInfo()
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.appColors.background),
+        ) {
+            NoCoursesInfo(modifier = Modifier.align(Alignment.Center))
+            FindACourseButton(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                findACourseClick = {})
+        }
     }
 }

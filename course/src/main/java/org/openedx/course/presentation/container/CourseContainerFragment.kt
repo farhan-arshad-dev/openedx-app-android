@@ -86,8 +86,8 @@ import org.openedx.core.ui.CheckmarkView
 import org.openedx.core.ui.HandleUIMessage
 import org.openedx.core.ui.IAPErrorDialog
 import org.openedx.core.ui.OfflineModeDialog
-import org.openedx.core.ui.OpenEdXButton
-import org.openedx.core.ui.OpenEdXOutlinedButton
+import org.openedx.core.ui.OpenEdXOutlinePrimaryButton
+import org.openedx.core.ui.OpenEdXPrimaryButton
 import org.openedx.core.ui.RoundTabsBar
 import org.openedx.core.ui.UnlockingAccessView
 import org.openedx.core.ui.UpgradeToAccessView
@@ -911,18 +911,15 @@ private fun SetupCourseAccessErrorButtons(
         CourseAccessError.AUDIT_EXPIRED_NOT_UPGRADABLE,
         CourseAccessError.NOT_YET_STARTED,
         -> {
-            OpenEdXButton(
+            OpenEdXPrimaryButton(
                 text = stringResource(R.string.course_label_back),
                 onClick = { fragmentManager.popBackStack() },
             )
         }
 
         CourseAccessError.AUDIT_EXPIRED_UPGRADABLE -> {
-            OpenEdXOutlinedButton(
+            OpenEdXOutlinePrimaryButton(
                 text = stringResource(R.string.course_find_new_course_button),
-                backgroundColor = MaterialTheme.appColors.background,
-                textColor = MaterialTheme.appColors.primary,
-                borderColor = MaterialTheme.appColors.primary,
                 onClick = {
                     viewModel.courseRouter.navigateToDiscover(fragmentManager)
                 }
@@ -948,7 +945,7 @@ private fun SetupCourseAccessErrorButtons(
 
         CourseAccessError.UNKNOWN -> {
             if (viewModel.hasInternetConnection) {
-                OpenEdXButton(
+                OpenEdXPrimaryButton(
                     text = stringResource(R.string.course_label_back),
                     onClick = { fragmentManager.popBackStack() },
                 )

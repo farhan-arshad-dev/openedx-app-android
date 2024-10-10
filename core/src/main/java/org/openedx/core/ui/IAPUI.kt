@@ -1,12 +1,12 @@
 package org.openedx.core.ui
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
@@ -28,6 +28,7 @@ import org.openedx.core.R
 import org.openedx.core.exception.iap.IAPException
 import org.openedx.core.presentation.iap.IAPAction
 import org.openedx.core.presentation.iap.IAPErrorDialogType
+import org.openedx.core.ui.theme.OpenEdXTheme
 import org.openedx.core.ui.theme.appColors
 import org.openedx.core.ui.theme.appShapes
 import org.openedx.core.ui.theme.appTypography
@@ -99,7 +100,8 @@ fun IAPErrorDialog(iapException: IAPException, onIAPAction: (IAPAction) -> Unit)
         }
 
         IAPErrorDialogType.ADD_TO_BASKET_NOT_ACCEPTABLE_ERROR_DIALOG,
-        IAPErrorDialogType.CHECKOUT_NOT_ACCEPTABLE_ERROR_DIALOG -> {
+        IAPErrorDialogType.CHECKOUT_NOT_ACCEPTABLE_ERROR_DIALOG,
+        -> {
             UpgradeErrorDialog(
                 title = stringResource(id = R.string.iap_error_title),
                 description = stringResource(id = dialogType.messageResId),
@@ -114,7 +116,8 @@ fun IAPErrorDialog(iapException: IAPException, onIAPAction: (IAPAction) -> Unit)
         IAPErrorDialogType.EXECUTE_FORBIDDEN_ERROR_DIALOG,
         IAPErrorDialogType.EXECUTE_NOT_ACCEPTABLE_ERROR_DIALOG,
         IAPErrorDialogType.EXECUTE_GENERAL_ERROR_DIALOG,
-        IAPErrorDialogType.CONSUME_ERROR_DIALOG -> {
+        IAPErrorDialogType.CONSUME_ERROR_DIALOG,
+        -> {
             CourseAlreadyPurchasedExecuteErrorDialog(
                 description = stringResource(id = dialogType.messageResId),
                 positiveText = stringResource(id = dialogType.positiveButtonResId),
@@ -177,8 +180,7 @@ fun NoSkuErrorDialog(
             )
         },
         confirmButton = {
-            OpenEdXButton(
-                modifier = Modifier.wrapContentSize(),
+            OpenEdXTertiaryButton(
                 text = stringResource(id = R.string.core_ok),
                 onClick = onConfirm
             )
@@ -226,28 +228,20 @@ fun CourseAlreadyPurchasedExecuteErrorDialog(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp),
-                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                OpenEdXButton(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(2.dp),
+                OpenEdXTertiaryButton(
                     text = positiveText,
                     onClick = onPositiveClick
                 )
 
-                OpenEdXButton(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(2.dp),
+                OpenEdXTertiaryButton(
                     text = negativeText,
                     onClick = onNegativeClick
                 )
 
-                OpenEdXButton(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(2.dp),
+                OpenEdXTertiaryButton(
                     text = neutralText,
                     onClick = onNeutralClick
                 )
@@ -291,15 +285,13 @@ fun UpgradeErrorDialog(
             )
         },
         confirmButton = {
-            OpenEdXButton(
-                modifier = Modifier.wrapContentSize(),
+            OpenEdXTertiaryButton(
                 text = confirmText,
                 onClick = onConfirm
             )
         },
         dismissButton = {
-            OpenEdXButton(
-                modifier = Modifier.wrapContentSize(),
+            OpenEdXTertiaryButton(
                 text = dismissText,
                 onClick = onDismiss
             )
@@ -365,15 +357,13 @@ fun FakePurchasesFulfillmentCompleted(onCancel: () -> Unit, onGetHelp: () -> Uni
             )
         },
         confirmButton = {
-            OpenEdXButton(
-                modifier = Modifier.wrapContentSize(),
+            OpenEdXTertiaryButton(
                 text = stringResource(id = R.string.core_cancel),
                 onClick = onCancel
             )
         },
         dismissButton = {
-            OpenEdXButton(
-                modifier = Modifier.wrapContentSize(),
+            OpenEdXTertiaryButton(
                 text = stringResource(id = R.string.iap_get_help),
                 onClick = onGetHelp
             )
@@ -409,15 +399,13 @@ fun PurchasesFulfillmentCompletedDialog(onConfirm: () -> Unit, onDismiss: () -> 
             )
         },
         confirmButton = {
-            OpenEdXButton(
-                modifier = Modifier.wrapContentSize(),
+            OpenEdXTertiaryButton(
                 text = stringResource(id = R.string.iap_label_refresh_now),
                 onClick = onConfirm
             )
         },
         dismissButton = {
-            OpenEdXButton(
-                modifier = Modifier.wrapContentSize(),
+            OpenEdXTertiaryButton(
                 text = stringResource(id = R.string.iap_label_continue_without_update),
                 onClick = onDismiss
             )
@@ -427,55 +415,76 @@ fun PurchasesFulfillmentCompletedDialog(onConfirm: () -> Unit, onDismiss: () -> 
     )
 }
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewValuePropUpgradeFeatures() {
-    ValuePropUpgradeFeatures(modifier = Modifier.background(Color.White), "Test Course")
+    OpenEdXTheme {
+        ValuePropUpgradeFeatures(modifier = Modifier.background(Color.White), "Test Course")
+    }
 }
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewUpgradeErrorDialog() {
-    UpgradeErrorDialog(
-        title = "Error while Upgrading",
-        description = "Description of the error",
-        confirmText = "Confirm",
-        onConfirm = {},
-        dismissText = "Dismiss",
-        onDismiss = {})
+    OpenEdXTheme {
+        UpgradeErrorDialog(
+            title = "Error while Upgrading",
+            description = "Description of the error",
+            confirmText = "Confirm",
+            onConfirm = {},
+            dismissText = "Dismiss",
+            onDismiss = {})
+    }
 }
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewPurchasesFulfillmentCompletedDialog() {
-    PurchasesFulfillmentCompletedDialog(onConfirm = {}, onDismiss = {})
+    OpenEdXTheme {
+        PurchasesFulfillmentCompletedDialog(onConfirm = {}, onDismiss = {})
+    }
 }
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewCheckingPurchasesDialog() {
-    CheckingPurchasesDialog()
+    OpenEdXTheme {
+        CheckingPurchasesDialog()
+    }
 }
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewFakePurchasesFulfillmentCompleted() {
-    FakePurchasesFulfillmentCompleted(onCancel = {}, onGetHelp = {})
+    OpenEdXTheme {
+        FakePurchasesFulfillmentCompleted(onCancel = {}, onGetHelp = {})
+    }
 }
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewCourseAlreadyPurchasedExecuteErrorDialog() {
-    CourseAlreadyPurchasedExecuteErrorDialog(
-        description = stringResource(id = R.string.iap_course_not_fullfilled),
-        positiveText = stringResource(id = R.string.iap_label_refresh_now),
-        negativeText = stringResource(id = R.string.iap_get_help),
-        neutralText = stringResource(id = R.string.core_cancel),
-        onPositiveClick = {}, onNegativeClick = {}, onNeutralClick = {})
+    OpenEdXTheme {
+        CourseAlreadyPurchasedExecuteErrorDialog(
+            description = stringResource(id = R.string.iap_course_not_fullfilled),
+            positiveText = stringResource(id = R.string.iap_label_refresh_now),
+            negativeText = stringResource(id = R.string.iap_get_help),
+            neutralText = stringResource(id = R.string.core_cancel),
+            onPositiveClick = {}, onNegativeClick = {}, onNeutralClick = {})
+    }
 }
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewNoSkuErrorDialog() {
-    NoSkuErrorDialog(onConfirm = {})
+    OpenEdXTheme {
+        NoSkuErrorDialog(onConfirm = {})
+    }
 }

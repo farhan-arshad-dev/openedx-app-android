@@ -1,5 +1,6 @@
 package org.openedx.core.ui
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.BorderStroke
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
@@ -115,6 +117,7 @@ import org.openedx.core.UIMessage
 import org.openedx.core.domain.model.RegistrationField
 import org.openedx.core.extension.LinkedImageText
 import org.openedx.core.extension.tagId
+import org.openedx.core.extension.takeIfNotEmpty
 import org.openedx.core.extension.toastMessage
 import org.openedx.core.presentation.global.ErrorType
 import org.openedx.core.ui.theme.OpenEdXTheme
@@ -1060,7 +1063,8 @@ fun OfflineModeDialog(
 }
 
 @Composable
-fun OpenEdXButton(
+@SuppressLint("ModifierParameter")
+fun OpenEdXBrandButton(
     modifier: Modifier = Modifier.fillMaxWidth(),
     text: String = "",
     onClick: () -> Unit,
@@ -1071,22 +1075,28 @@ fun OpenEdXButton(
 ) {
     Button(
         modifier = Modifier
-            .testTag("btn_${text.tagId()}")
+            .testTag(
+                text
+                    .takeIfNotEmpty()
+                    ?.let { "btn_${text.tagId()}" } ?: ""
+            )
             .then(modifier)
-            .height(42.dp),
+            .heightIn(min = 42.dp),
         shape = MaterialTheme.appShapes.buttonShape,
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = backgroundColor
+            backgroundColor = backgroundColor,
+            disabledBackgroundColor = backgroundColor.copy(alpha = 0.3f)
         ),
         enabled = enabled,
-        onClick = onClick
+        onClick = onClick,
     ) {
         if (content == null) {
             Text(
                 modifier = Modifier.testTag("txt_${text.tagId()}"),
                 text = text,
+                style = MaterialTheme.appTypography.labelLarge,
                 color = textColor,
-                style = MaterialTheme.appTypography.labelLarge
+                textAlign = TextAlign.Center
             )
         } else {
             content()
@@ -1095,33 +1105,129 @@ fun OpenEdXButton(
 }
 
 @Composable
-fun OpenEdXOutlinedButton(
+@SuppressLint("ModifierParameter")
+fun OpenEdXOutlineBrandButton(
     modifier: Modifier = Modifier.fillMaxWidth(),
-    backgroundColor: Color = Color.Transparent,
-    borderColor: Color,
-    textColor: Color,
-    text: String = "",
-    enabled: Boolean = true,
+    text: String,
     onClick: () -> Unit,
+    enabled: Boolean = true,
+    textColor: Color = MaterialTheme.appColors.primaryButtonBackground,
+    backgroundColor: Color = Color.White,
+    borderColor: Color = MaterialTheme.appColors.primaryButtonBackground,
     content: (@Composable RowScope.() -> Unit)? = null,
 ) {
     OutlinedButton(
         modifier = Modifier
-            .testTag("btn_${text.tagId()}")
+            .testTag(
+                text
+                    .takeIfNotEmpty()
+                    ?.let { "btn_${text.tagId()}" } ?: ""
+            )
             .then(modifier)
-            .height(42.dp),
+            .heightIn(min = 42.dp),
         onClick = onClick,
         enabled = enabled,
-        border = BorderStroke(1.dp, borderColor),
+        border = BorderStroke(1.dp, if (enabled) borderColor else borderColor.copy(alpha = 0.3f)),
         shape = MaterialTheme.appShapes.buttonShape,
-        colors = ButtonDefaults.outlinedButtonColors(backgroundColor = backgroundColor)
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = backgroundColor,
+            disabledBackgroundColor = backgroundColor,
+        ),
     ) {
         if (content == null) {
             Text(
                 modifier = Modifier.testTag("txt_${text.tagId()}"),
                 text = text,
                 style = MaterialTheme.appTypography.labelLarge,
-                color = textColor
+                color = if (enabled) textColor else textColor.copy(alpha = 0.3f),
+                textAlign = TextAlign.Center
+            )
+        } else {
+            content()
+        }
+    }
+}
+
+@Composable
+@SuppressLint("ModifierParameter")
+fun OpenEdXPrimaryButton(
+    modifier: Modifier = Modifier.fillMaxWidth(),
+    text: String,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    textColor: Color = MaterialTheme.appColors.secondaryButtonText,
+    backgroundColor: Color = MaterialTheme.appColors.secondaryButtonBackground,
+    content: (@Composable RowScope.() -> Unit)? = null,
+) {
+    OpenEdXBrandButton(
+        modifier = modifier,
+        text = text,
+        onClick = onClick,
+        enabled = enabled,
+        textColor = textColor,
+        backgroundColor = backgroundColor,
+        content = content
+    )
+}
+
+@Composable
+@SuppressLint("ModifierParameter")
+fun OpenEdXOutlinePrimaryButton(
+    modifier: Modifier = Modifier.fillMaxWidth(),
+    text: String,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    textColor: Color = MaterialTheme.appColors.primaryButtonBorderedText,
+    backgroundColor: Color = MaterialTheme.appColors.background,
+    borderColor: Color = MaterialTheme.appColors.primaryButtonBorderedText,
+    content: (@Composable RowScope.() -> Unit)? = null,
+) {
+    OpenEdXOutlineBrandButton(
+        modifier = modifier,
+        text = text,
+        onClick = onClick,
+        enabled = enabled,
+        textColor = textColor,
+        backgroundColor = backgroundColor,
+        borderColor = borderColor,
+        content = content
+    )
+}
+
+@Composable
+@SuppressLint("ModifierParameter")
+fun OpenEdXTertiaryButton(
+    modifier: Modifier = Modifier.wrapContentSize(),
+    text: String,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    textColor: Color = MaterialTheme.appColors.textPrimary,
+    content: (@Composable RowScope.() -> Unit)? = null,
+) {
+    Button(
+        modifier = Modifier
+            .testTag(
+                text
+                    .takeIfNotEmpty()
+                    ?.let { "btn_${text.tagId()}" } ?: ""
+            )
+            .then(modifier)
+            .height(42.dp),
+        shape = MaterialTheme.appShapes.buttonShape,
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = Color.Transparent,
+            disabledBackgroundColor = Color.Transparent
+        ),
+        elevation = null,
+        enabled = enabled,
+        onClick = onClick,
+    ) {
+        if (content == null) {
+            Text(
+                modifier = Modifier.testTag("txt_${text.tagId()}"),
+                text = text,
+                style = MaterialTheme.appTypography.labelLarge,
+                color = textColor.copy(alpha = if (enabled) 1f else 0.3f)
             )
         } else {
             content()
@@ -1186,7 +1292,7 @@ fun FullScreenErrorView(
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(16.dp))
-        OpenEdXButton(
+        OpenEdXPrimaryButton(
             modifier = Modifier
                 .widthIn(Dp.Unspecified, 162.dp),
             text = stringResource(id = errorType.actionResId),
@@ -1238,18 +1344,16 @@ fun AuthButtonsPanel(
     onSignInClick: () -> Unit,
 ) {
     Row {
-        OpenEdXButton(
+        OpenEdXBrandButton(
             modifier = Modifier
                 .testTag("btn_register")
                 .width(0.dp)
                 .weight(1f),
             text = stringResource(id = R.string.core_register),
-            textColor = MaterialTheme.appColors.primaryButtonText,
-            backgroundColor = MaterialTheme.appColors.primaryButtonBackground,
             onClick = { onRegisterClick() }
         )
 
-        OpenEdXOutlinedButton(
+        OpenEdXOutlineBrandButton(
             modifier = Modifier
                 .testTag("btn_sign_in")
                 .width(100.dp)
@@ -1402,6 +1506,39 @@ private fun AuthButtonsPanelPreview() {
     AuthButtonsPanel(onRegisterClick = {}, onSignInClick = {})
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ButtonsPreview() {
+    OpenEdXTheme {
+        Column(
+            modifier = Modifier
+                .background(MaterialTheme.appColors.background)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            OpenEdXBrandButton(text = "BrandButton", onClick = {}, enabled = true)
+            OpenEdXBrandButton(text = "BrandButtonDisabled", onClick = {}, enabled = false)
+            OpenEdXOutlineBrandButton(text = "OutlineBrandButton", onClick = {}, enabled = true)
+            OpenEdXOutlineBrandButton(
+                text = "OutlineBrandButtonDisabled",
+                onClick = {},
+                enabled = false
+            )
+            OpenEdXPrimaryButton(text = "PrimaryButton", onClick = {}, enabled = true)
+            OpenEdXPrimaryButton(text = "PrimaryButtonDisabled", onClick = {}, enabled = false)
+            OpenEdXOutlinePrimaryButton(text = "OutlinePrimaryButton", onClick = {}, enabled = true)
+            OpenEdXOutlinePrimaryButton(
+                text = "OutlinePrimaryButtonDisabled",
+                onClick = {},
+                enabled = false
+            )
+            OpenEdXTertiaryButton(text = "TertiaryButton", onClick = {}, enabled = true)
+            OpenEdXTertiaryButton(text = "TertiaryButtonDisabled", onClick = {}, enabled = false)
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun OpenEdXOutlinedTextFieldPreview() {
@@ -1426,10 +1563,11 @@ private fun IconTextPreview() {
     )
 }
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun ConnectionErrorViewPreview() {
-    OpenEdXTheme(darkTheme = true) {
+    OpenEdXTheme {
         ConnectionErrorView(onReloadClick = {})
     }
 }
@@ -1451,6 +1589,15 @@ private fun RoundTabsBarPreview() {
             pagerState = rememberPagerState(pageCount = { 3 }),
             onTabClicked = { }
         )
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun OfflinePreview() {
+    OpenEdXTheme {
+        OfflineModeDialog(Modifier, {}, {})
     }
 }
 

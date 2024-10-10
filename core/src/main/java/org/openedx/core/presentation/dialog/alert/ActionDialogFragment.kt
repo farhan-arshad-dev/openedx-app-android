@@ -36,8 +36,7 @@ import org.openedx.core.config.Config
 import org.openedx.core.presentation.CoreAnalytics
 import org.openedx.core.presentation.CoreAnalyticsEvent
 import org.openedx.core.presentation.CoreAnalyticsKey
-import org.openedx.core.presentation.global.app_upgrade.DefaultTextButton
-import org.openedx.core.presentation.global.app_upgrade.TransparentTextButton
+import org.openedx.core.ui.OpenEdXTertiaryButton
 import org.openedx.core.ui.theme.OpenEdXTheme
 import org.openedx.core.ui.theme.appColors
 import org.openedx.core.ui.theme.appShapes
@@ -168,12 +167,12 @@ private fun ActionDialog(
                 style = MaterialTheme.appTypography.bodyMedium
             )
             Row {
-                TransparentTextButton(
+                OpenEdXTertiaryButton(
                     text = stringResource(R.string.core_cancel),
                     onClick = onPositiveClick
                 )
                 Spacer(modifier = Modifier.size(16.dp))
-                DefaultTextButton(
+                OpenEdXTertiaryButton(
                     text = stringResource(R.string.core_continue),
                     onClick = onNegativeClick
                 )

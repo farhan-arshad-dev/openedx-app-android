@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
@@ -48,6 +46,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.openedx.core.R
 import org.openedx.core.presentation.dialog.DefaultDialogBox
+import org.openedx.core.ui.OpenEdXTertiaryButton
 import org.openedx.core.ui.theme.OpenEdXTheme
 import org.openedx.core.ui.theme.appColors
 import org.openedx.core.ui.theme.appShapes
@@ -102,11 +101,11 @@ fun ThankYouDialog(
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
-                    TransparentTextButton(
+                    OpenEdXTertiaryButton(
                         text = stringResource(id = R.string.core_not_now),
                         onClick = onNotNowClick
                     )
-                    DefaultTextButton(
+                    OpenEdXTertiaryButton(
                         text = stringResource(id = R.string.core_rate_us),
                         onClick = onRateUsClick
                     )
@@ -180,12 +179,12 @@ fun FeedbackDialog(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                TransparentTextButton(
+                OpenEdXTertiaryButton(
                     text = stringResource(id = R.string.core_not_now),
                     onClick = onNotNowClick
                 )
-                DefaultTextButton(
-                    isEnabled = feedback.value.isNotEmpty(),
+                OpenEdXTertiaryButton(
+                    enabled = feedback.value.isNotEmpty(),
                     text = stringResource(id = R.string.core_share_feedback),
                     onClick = onShareClick
                 )
@@ -213,7 +212,10 @@ fun RateDialog(
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Text(
-                text = stringResource(R.string.core_rate_dialog_title, stringResource(R.string.app_name)),
+                text = stringResource(
+                    R.string.core_rate_dialog_title,
+                    stringResource(R.string.app_name)
+                ),
                 color = MaterialTheme.appColors.textPrimary,
                 style = MaterialTheme.appTypography.titleMedium
             )
@@ -231,79 +233,16 @@ fun RateDialog(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                TransparentTextButton(
+                OpenEdXTertiaryButton(
                     text = stringResource(id = R.string.core_not_now),
                     onClick = onNotNowClick
                 )
-                DefaultTextButton(
-                    isEnabled = rating.intValue > 0,
+                OpenEdXTertiaryButton(
+                    enabled = rating.intValue > 0,
                     text = stringResource(id = R.string.core_submit),
                     onClick = onSubmitClick
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun TransparentTextButton(
-    text: String,
-    onClick: () -> Unit
-) {
-    Button(
-        modifier = Modifier
-            .height(42.dp),
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = Color.Transparent
-        ),
-        elevation = null,
-        shape = MaterialTheme.appShapes.navigationButtonShape,
-        onClick = onClick
-    ) {
-        Text(
-            color = MaterialTheme.appColors.textAccent,
-            style = MaterialTheme.appTypography.labelLarge,
-            text = text
-        )
-    }
-}
-
-@Composable
-fun DefaultTextButton(
-    isEnabled: Boolean = true,
-    text: String,
-    onClick: () -> Unit
-) {
-    val textColor: Color
-    val backgroundColor: Color
-    if (isEnabled) {
-        textColor = MaterialTheme.appColors.primaryButtonText
-        backgroundColor = MaterialTheme.appColors.primaryButtonBackground
-    } else {
-        textColor = MaterialTheme.appColors.inactiveButtonText
-        backgroundColor = MaterialTheme.appColors.inactiveButtonBackground
-    }
-
-    Button(
-        modifier = Modifier
-            .height(42.dp),
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = backgroundColor,
-            contentColor = textColor
-        ),
-        elevation = null,
-        shape = MaterialTheme.appShapes.navigationButtonShape,
-        enabled = isEnabled,
-        onClick = onClick
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = text,
-                style = MaterialTheme.appTypography.labelLarge
-            )
         }
     }
 }
@@ -394,7 +333,8 @@ private fun FeedbackDialogPreview() {
     }
 }
 
-@Preview
+@Preview(uiMode = UI_MODE_NIGHT_NO)
+@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun ThankYouDialogWithButtonsPreview() {
     OpenEdXTheme {
@@ -407,7 +347,8 @@ private fun ThankYouDialogWithButtonsPreview() {
     }
 }
 
-@Preview
+@Preview(uiMode = UI_MODE_NIGHT_NO)
+@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun ThankYouDialogWithoutButtonsPreview() {
     OpenEdXTheme {
