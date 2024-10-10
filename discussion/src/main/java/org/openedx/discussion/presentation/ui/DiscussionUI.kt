@@ -29,6 +29,8 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -77,15 +79,10 @@ fun ThreadMainItem(
         CoreR.drawable.core_ic_default_profile_picture
     }
 
-    val votePainter = if (thread.voted) {
-        painterResource(id = R.drawable.discussion_ic_like_success)
+    val voteIcon = if (thread.voted) {
+        Icons.Filled.ThumbUp
     } else {
-        painterResource(id = R.drawable.discussion_ic_like)
-    }
-    val voteColor = if (thread.voted) {
-        MaterialTheme.appColors.primary
-    } else {
-        MaterialTheme.appColors.textPrimaryVariant
+        Icons.Outlined.ThumbUp
     }
     val reportText = if (thread.abuseFlagged) {
         stringResource(id = R.string.discussion_unreport)
@@ -95,7 +92,7 @@ fun ThreadMainItem(
     val reportColor = if (thread.abuseFlagged) {
         MaterialTheme.appColors.error
     } else {
-        MaterialTheme.appColors.textPrimaryVariant
+        MaterialTheme.appColors.textPrimary
     }
 
     val context = LocalContext.current
@@ -149,7 +146,7 @@ fun ThreadMainItem(
                 text = stringResource(id = R.string.discussion_follow),
                 painter = painterResource(if (thread.following) R.drawable.discussion_star_filled else R.drawable.discussion_star),
                 textStyle = MaterialTheme.appTypography.labelLarge,
-                color = MaterialTheme.appColors.textPrimaryVariant,
+                color = MaterialTheme.appColors.textPrimary,
                 onClick = {
                     onClick(DiscussionCommentsFragment.ACTION_FOLLOW_THREAD, !thread.following)
                 })
@@ -173,8 +170,8 @@ fun ThreadMainItem(
                     thread.voteCount,
                     thread.voteCount
                 ),
-                painter = votePainter,
-                color = voteColor,
+                icon = voteIcon,
+                color = MaterialTheme.appColors.textPrimary,
                 textStyle = MaterialTheme.appTypography.labelLarge,
                 onClick = {
                     onClick(DiscussionCommentsFragment.ACTION_UPVOTE_THREAD, !thread.voted)
@@ -222,17 +219,12 @@ fun CommentItem(
     val reportColor = if (comment.abuseFlagged) {
         MaterialTheme.appColors.error
     } else {
-        MaterialTheme.appColors.textPrimaryVariant
+        MaterialTheme.appColors.textPrimary
     }
-    val votePainter = if (comment.voted) {
-        painterResource(id = R.drawable.discussion_ic_like_success)
+    val voteIcon = if (comment.voted) {
+        Icons.Filled.ThumbUp
     } else {
-        painterResource(id = R.drawable.discussion_ic_like)
-    }
-    val voteColor = if (comment.voted) {
-        MaterialTheme.appColors.textAccent
-    } else {
-        MaterialTheme.appColors.textPrimaryVariant
+        Icons.Outlined.ThumbUp
     }
 
     val context = LocalContext.current
@@ -327,8 +319,8 @@ fun CommentItem(
                         comment.voteCount,
                         comment.voteCount
                     ),
-                    painter = votePainter,
-                    color = voteColor,
+                    icon = voteIcon,
+                    color = MaterialTheme.appColors.textPrimary,
                     textStyle = MaterialTheme.appTypography.labelLarge,
                     onClick = {
                         onClick(
@@ -345,7 +337,7 @@ fun CommentItem(
                         comment.childCount
                     ),
                     painter = painterResource(id = R.drawable.discussion_ic_comment),
-                    color = MaterialTheme.appColors.textPrimaryVariant,
+                    color = MaterialTheme.appColors.textPrimary,
                     textStyle = MaterialTheme.appTypography.labelLarge,
                     onClick = {
                         onAddCommentClick()
@@ -382,18 +374,13 @@ fun CommentMainItem(
     val reportColor = if (comment.abuseFlagged) {
         MaterialTheme.appColors.error
     } else {
-        MaterialTheme.appColors.textPrimaryVariant
+        MaterialTheme.appColors.textPrimary
     }
 
-    val votePainter = if (comment.voted) {
-        painterResource(id = R.drawable.discussion_ic_like_success)
+    val voteIcon = if (comment.voted) {
+        Icons.Filled.ThumbUp
     } else {
-        painterResource(id = R.drawable.discussion_ic_like)
-    }
-    val voteColor = if (comment.voted) {
-        MaterialTheme.appColors.textAccent
-    } else {
-        MaterialTheme.appColors.textPrimaryVariant
+        Icons.Outlined.ThumbUp
     }
 
     val context = LocalContext.current
@@ -467,8 +454,8 @@ fun CommentMainItem(
                         comment.voteCount,
                         comment.voteCount
                     ),
-                    painter = votePainter,
-                    color = voteColor,
+                    icon = voteIcon,
+                    color = MaterialTheme.appColors.textPrimary,
                     textStyle = MaterialTheme.appTypography.labelLarge,
                     onClick = {
                         onClick(
@@ -711,13 +698,13 @@ private fun ThreadMainItemPreview() {
 
 private val mockComment = DiscussionComment(
     "",
+    "ABC",
     "",
     "",
     "",
     "",
     "",
-    "",
-    TextConverter.textToLinkedImageText(""),
+    TextConverter.textToLinkedImageText("mock Comment"),
     false,
     true,
     20,
@@ -737,7 +724,7 @@ private val mockComment = DiscussionComment(
 
 private val mockThread = org.openedx.discussion.domain.model.Thread(
     "",
-    "",
+    "ABC",
     "",
     "",
     "",

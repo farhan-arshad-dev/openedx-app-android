@@ -24,8 +24,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -190,17 +190,7 @@ private fun DiscussionCommentsScreen(
         mutableStateOf("")
     }
 
-    val sendButtonColor = if (responseValue.isEmpty()) {
-        MaterialTheme.appColors.textFieldBorder
-    } else {
-        MaterialTheme.appColors.primaryButtonBackground
-    }
-
-    val iconButtonColor = if (responseValue.isEmpty()) {
-        MaterialTheme.appColors.textFieldBackgroundVariant
-    } else {
-        Color.White
-    }
+    val sendButtonAlpha = if (responseValue.isEmpty()) 0.3f else 1f
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -404,7 +394,8 @@ private fun DiscussionCommentsScreen(
                                             modifier = Modifier
                                                 .size(48.dp)
                                                 .clip(CircleShape)
-                                                .background(sendButtonColor)
+                                                .alpha(sendButtonAlpha)
+                                                .background(MaterialTheme.appColors.primaryButtonBackground)
                                                 .clickable {
                                                     keyboardController?.hide()
                                                     focusManager.clearFocus()
@@ -419,7 +410,7 @@ private fun DiscussionCommentsScreen(
                                                 modifier = Modifier.padding(7.dp),
                                                 painter = painterResource(id = R.drawable.discussion_ic_send),
                                                 contentDescription = stringResource(id = R.string.discussion_add_response),
-                                                tint = iconButtonColor
+                                                tint = MaterialTheme.appColors.primaryButtonText
                                             )
                                         }
                                     }
